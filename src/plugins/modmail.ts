@@ -1,8 +1,15 @@
-import {Message, ChannelType, User, EmbedBuilder} from 'discord.js'
+import {Message, ChannelType, User, EmbedBuilder, ColorResolvable} from 'discord.js'
 import {useClient, useEvent} from "../hooks";
 import { IModmailThread, ModmailThread } from '../database/ModmailThread';
 import { MODMAIL_CONFIG, STAFF_GUILD_ID } from '../globals';
 import { IModmailMessage } from '../database/ModmailMessage';
+
+const modmailConfig = {
+    colors: {
+        user: "Green",
+        mod: "Blue"
+    }
+} 
 
 // Handles new DMs from a user to
 useEvent("messageCreate", (async (message: Message) => {
@@ -24,29 +31,32 @@ useEvent("messageCreate", (async (message: Message) => {
         _id: "", // This will be auto-generated in the pre-save hook
         discordMessageId: message.id,
         authorId: message.author.id,
-        isMod: false, // Message to the bot is guaranteed to be a user.
+        isMod: true, // Message to the bot is guaranteed to be a user.
         datetime: message.createdAt.toUTCString(),
         content: `${message.cleanContent}`,
     }
     thread.addMessage(modmailMessage)
 
-    postMessageToThread(thread, message);
+    postMessageToThread(thread, modmailMessage, message.author);
 }));
 
 // Creates a Discord embed for a message thread.
 const createMessageEmbedForThread = (
-    message: Message
+    message: IModmailMessage,
+    author: User
 ) => {
+    const embedColor = message.isMod ? modmailConfig.colors.mod : modmailConfig.colors.user;
+
     return new EmbedBuilder()
-        .setAuthor({"name": message.author.username, "iconURL": message.author.displayAvatarURL({extension: "png", size: 1024})})
-        .setDescription(message.cleanContent)
-        .setColor("Green")
-        .setFooter({text: `<t:${message.createdAt.valueOf()}>`})
+        .setAuthor({"name": author.username, "iconURL": author.displayAvatarURL({extension: "png", size: 1024})})
+        .setDescription(message.content)
+        .setColor(embedColor as ColorResolvable)
 }
 
 const postMessageToThread = async (
     thread: IModmailThread,
-    message: Message
+    message: IModmailMessage,
+    author: User
 ) => {
     const {client} = useClient();
 
@@ -62,7 +72,7 @@ const postMessageToThread = async (
         throw new Error("Could not find associated thread.")
     }
 
-    const replyEmbed = createMessageEmbedForThread(message);
+    const replyEmbed = createMessageEmbedForThread(message, author);
     await threadChannel.send({embeds: [replyEmbed]});
 };
 
