@@ -1,4 +1,5 @@
 export const MAIN_GUILD_ID = "332309672486895637";
+export const STAFF_GUILD_ID = "337792272693461002";
 
 interface NextEvent {
     name: string;
@@ -21,4 +22,8 @@ export const ROLES = {
     event_reserved: "1111076493834072165",
     modsquad: "334889410006876161",
     plus: "338950814108483586"
+}
+
+export const MODMAIL_CONFIG = {
+    category_id: "582568757575024640"
 }
