@@ -8,7 +8,6 @@ export interface IModmailMessage {
     isMod: boolean;
     datetime: string;
     content: string;
-    threadId: string;
 }
 
 const modmailMessageSchema = new Schema<IModmailMessage>({
