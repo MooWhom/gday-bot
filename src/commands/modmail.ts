@@ -8,30 +8,31 @@ import {
     TextInputBuilder,
     TextInputStyle,
 } from "discord.js";
+import { ModmailThread } from "../database/ModmailThread";
 
-const builder = new SlashCommandBuilder()
-    .setName("modmail")
-    .setDescription("Contact staff via ModMail.")
-    .setDeferrable(false)
-    .setScope(SlashCommandScope.MAIN_GUILD);
+const closeBuilder = new SlashCommandBuilder()
+    .setName("close")
+    .setDescription("Closes a modmail thread when run in a thread channel.")
+    .setScope(SlashCommandScope.STAFF_SERVER);
 
-useChatCommand(builder, async (interaction: ChatInputCommandInteraction) => {
-    const modal = new ModalBuilder()
-        .setCustomId("modmail")
-        .setTitle("r/Apple ModMail");
+useChatCommand(closeBuilder, async (interaction: ChatInputCommandInteraction) => {
+    let threadChannel = interaction.channel;
+    if (!threadChannel) return null;
+    
+    let thread = await ModmailThread.findOne({
+        "channelDiscordId": threadChannel.id,
+        "isActive": true
+    });
 
-    const issueInput = new TextInputBuilder()
-        .setCustomId("issue")
-        .setLabel("Describe your issue to staff as best you can. **THIS IS A TEST AND YOUR MESSAGE WILL NOT GO ANYWHERE**")
-        .setStyle(TextInputStyle.Paragraph);
+    if (!thread) {
+        return "Sorry mate, this doesn't seem to be a thread channel."
+    }
 
-    const rowOne =
-        new ActionRowBuilder<ModalActionRowComponentBuilder>().addComponents(
-            issueInput
-        );
+    await thread.update({
+        "isActive": false
+    })
 
-    modal.addComponents(rowOne);
+    await threadChannel.delete();
 
-    await interaction.showModal(modal);
     return null;
 });
