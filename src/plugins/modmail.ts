@@ -11,7 +11,7 @@ const modmailConfig = {
     }
 } 
 
-// Handles new DMs from a user to
+// Handles new DMs from a user to the bot.
 useEvent("messageCreate", (async (message: Message) => {
     if (message.channel.type !== ChannelType.DM) {
         return;
