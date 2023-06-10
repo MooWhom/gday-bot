@@ -31,7 +31,7 @@ useEvent("messageCreate", (async (message: Message) => {
         _id: "", // This will be auto-generated in the pre-save hook
         discordMessageId: message.id,
         authorId: message.author.id,
-        isMod: true, // Message to the bot is guaranteed to be a user.
+        isMod: false, // Message to the bot is guaranteed to be a user.
         datetime: message.createdAt.toUTCString(),
         content: `${message.cleanContent}`,
     }
