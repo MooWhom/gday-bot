@@ -16,7 +16,7 @@ const modmailThreadSchema = new Schema<IModmailThread>({
     authorDiscordId: { type: Number, required: true },
     channelDiscordId: { type: Number, required: true },
     isActive: { type: Boolean, required: true, default: true },
-    messages: [{ type: Schema.Types.ObjectId, ref: 'Message' }],
+    messages: [{ type: Schema.Types.ObjectId, ref: 'Message', default: [] }],
 });
 
 modmailThreadSchema.pre("save", async function () {
