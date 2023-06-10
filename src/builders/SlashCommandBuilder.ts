@@ -1,10 +1,11 @@
 import {SlashCommandBuilder as djsSlashCommandBuilder} from "discord.js";
+import { MAIN_GUILD_ID } from "../globals";
 
 export enum SlashCommandScope {
     // noinspection JSUnusedGlobalSymbols
     GLOBAL,
-    MAIN_GUILD = "332309672486895637",
-    STAFF_SERVER = "337792272693461002",
+    MAIN_GUILD = MAIN_GUILD_ID,
+    STAFF_SERVER = STAFF_GUILD_ID,
 }
 
 export class SlashCommandBuilder extends djsSlashCommandBuilder {
