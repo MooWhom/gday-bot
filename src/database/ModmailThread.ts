@@ -4,8 +4,8 @@ import { IModmailMessage, modMailMessage } from "./ModmailMessage";
 
 export interface IModmailThread {
     _id: string;
-    authorDiscordId: number; 
-    channelDiscordId: number;
+    authorDiscordId: string; 
+    channelDiscordId: string;
     isActive: boolean;  // Set to true if the thread is not closed.
     messages: IModmailMessage[];
     addMessage: (msg: IModmailMessage) => Promise<void>;
@@ -13,10 +13,10 @@ export interface IModmailThread {
 
 const modmailThreadSchema = new Schema<IModmailThread>({
     _id: String,
-    authorDiscordId: { type: Number, required: true },
-    channelDiscordId: { type: Number, required: true },
+    authorDiscordId: { type: String, required: true },
+    channelDiscordId: { type: String, required: true },
     isActive: { type: Boolean, required: true, default: true },
-    messages: [{ type: Schema.Types.ObjectId, ref: 'Message', default: [] }],
+    messages: [{ type: String, ref: 'Message', default: [] }],
 });
 
 modmailThreadSchema.pre("save", async function () {
@@ -24,14 +24,15 @@ modmailThreadSchema.pre("save", async function () {
     let id;
     do {
         id = cryptoRandomString({length: 10, type: "distinguishable"});
-    } while (await ModmailThread.findById(id));
+    } while (await ModmailThread.findOne({"_id": id}));
     this._id = id;
 });
 
 modmailThreadSchema.methods.addMessage = async function(msg: IModmailMessage) {
     const message = new modMailMessage(msg);
     await message.save();
-    this.messages.push(message);
+    console.log(`message._id type: ${typeof message._id}, value: ${message._id}`);
+    this.messages.push(message._id);
     await this.save();
 }
 
