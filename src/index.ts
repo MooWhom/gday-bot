@@ -14,11 +14,12 @@ const client = new Client({
         GatewayIntentBits.GuildMessageTyping,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildBans,
+        GatewayIntentBits.DirectMessages
     ],
     allowedMentions: {
         parse: ["users"]
     },
-    partials: [Partials.GuildMember],
+    partials: [Partials.GuildMember, Partials.Channel],
 });
 useClient().setClient(client);
 
