@@ -101,7 +101,7 @@ export class ThreadManager {
     }
 
     // Closes thread channel.
-    public async closeThreadChannel () {
+    public async closeThread () {
         const thread = await this.getThreadFromDb();
         if (!thread.isActive) throw new Error("Thread is already closed");
 

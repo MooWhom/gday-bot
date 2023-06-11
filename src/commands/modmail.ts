@@ -55,6 +55,6 @@ useChatCommand(closeBuilder, async (interaction: ChatInputCommandInteraction) =>
         return "Sorry mate, this doesn't seem to be a thread channel."
     }
 
-    await thread.closeThreadChannel();
+    await thread.closeThread();
     return null;
 });
