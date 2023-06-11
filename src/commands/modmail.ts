@@ -1,14 +1,44 @@
 import {useChatCommand} from "../hooks/useChatCommand";
 import {SlashCommandBuilder, SlashCommandScope,} from "../builders/SlashCommandBuilder";
 import {
-    ActionRowBuilder,
+    ChannelType,
     ChatInputCommandInteraction,
-    ModalActionRowComponentBuilder,
-    ModalBuilder,
-    TextInputBuilder,
-    TextInputStyle,
 } from "discord.js";
-import { ModmailThread } from "../database/ModmailThread";
+import { IModmailReply, ThreadManager } from "../plugins/modmail"
+
+const replyBuilder = new SlashCommandBuilder()
+    .setName("reply")
+    .setDescription("Reply to a user in a modmail thread.")
+    .addStringOption(option =>
+        option.setName("reply")
+            .setDescription("The content of the reply.")
+            .setRequired(true))
+    .setScope(SlashCommandScope.STAFF_SERVER)
+    .setEphemeral(true);
+
+useChatCommand(replyBuilder, async (interaction: ChatInputCommandInteraction) => {
+    let threadChannel = interaction.channel;
+    if (!threadChannel || threadChannel.type !== ChannelType.GuildText) return null;
+    
+    const thread = await ThreadManager.getThreadAssociatedWithThreadChannel(threadChannel);
+
+    if (!thread) {
+        return "Sorry mate, this doesn't seem to be a thread channel."
+    }
+
+    const modmailReply: IModmailReply = {
+        messageId: interaction.id,
+        createdAt: interaction.createdAt,
+        author: interaction.user,
+        content: interaction.options.getString("reply", true)
+
+    }
+
+    await thread.addModMessageToThread(modmailReply);
+
+    return 'Successfully sent your reply.';
+});
+
 
 const closeBuilder = new SlashCommandBuilder()
     .setName("close")
@@ -17,22 +47,14 @@ const closeBuilder = new SlashCommandBuilder()
 
 useChatCommand(closeBuilder, async (interaction: ChatInputCommandInteraction) => {
     let threadChannel = interaction.channel;
-    if (!threadChannel) return null;
+    if (!threadChannel || threadChannel.type !== ChannelType.GuildText) return null;
     
-    let thread = await ModmailThread.findOne({
-        "channelDiscordId": threadChannel.id,
-        "isActive": true
-    });
+    const thread = await ThreadManager.getThreadAssociatedWithThreadChannel(threadChannel);
 
     if (!thread) {
         return "Sorry mate, this doesn't seem to be a thread channel."
     }
 
-    await thread.update({
-        "isActive": false
-    })
-
-    await threadChannel.delete();
-
+    await thread.closeThreadChannel();
     return null;
 });
