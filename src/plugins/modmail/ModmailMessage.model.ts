@@ -8,6 +8,7 @@ export interface IModmailMessage {
     isMod: boolean;
     datetime: string;
     content: string;
+    isModnote: boolean;
 }
 
 const modmailMessageSchema = new Schema<IModmailMessage>({
@@ -15,6 +16,7 @@ const modmailMessageSchema = new Schema<IModmailMessage>({
     discordMessageId: { type: String, required: true },
     authorId: { type: String, required: true },
     isMod: { type: Boolean, required: true },
+    isModnote: { type: Boolean, required: true, default: false },
     datetime: {
         type: String,
         default: function() {

@@ -52,6 +52,7 @@ export interface IModmailReply {
     createdAt: Date;
     author: User;
     content: string;
+    isModnote: boolean;
 }
 
 // ThreadManager handles operations on the underlying ModmailThread and ModmaiLMessage models.
@@ -100,7 +101,8 @@ export class ThreadManager {
             _id: "", // This will be auto-generated in the pre-save hook
             discordMessageId: reply.messageId,
             authorId: reply.author.id,
-            isMod: true, // 
+            isMod: true, // Mod messages will always be from a mod
+            isModnote: reply.isModnote,
             datetime: reply.createdAt.toUTCString(),
             content: reply.content
         }
@@ -120,6 +122,7 @@ export class ThreadManager {
             discordMessageId: message.id,
             authorId: author.id,
             isMod: false, // User messages will always not be from a mod.
+            isModnote: false,
             datetime: message.createdAt.toUTCString(),
             content: content
         }
@@ -220,6 +223,9 @@ export class ThreadManager {
         if (!thread.isActive) throw new Error (`Modmail ${thread._id} is not active.`)
 
         await thread.addMessage(message);
+
+        // If this is a modnote, we should never send this to any thread.
+        if (message.isModnote) return;
 
         const embed = new EmbedBuilder()
             .setAuthor({"name": author.username, "iconURL": author.displayAvatarURL({extension: "png", size: 1024})})
