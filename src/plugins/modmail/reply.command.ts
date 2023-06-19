@@ -30,6 +30,7 @@ useChatCommand(builder, async (interaction: ChatInputCommandInteraction) => {
         messageId: interaction.id,
         createdAt: interaction.createdAt,
         author: interaction.user,
+        isModnote: false,
         content: interaction.options.getString("reply", true)
 
     }

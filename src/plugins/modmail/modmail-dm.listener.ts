@@ -14,5 +14,5 @@ useEvent("messageCreate", (async (message: Message) => {
     if (message.author.id === client.user!.id) return;
 
     const thread = await ThreadManager.getOrCreateThread(message.author);
-    thread.addUserMessageToThread(message, message.author)
+    await thread.addUserMessageToThread(message, message.author)
 }));
